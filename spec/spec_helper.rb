@@ -1,5 +1,11 @@
 require 'spec'
-require 'activerecord'
+
+begin
+  require 'active_record' # The new one
+rescue LoadError
+  require 'activerecord' # The old one
+end
+
 require File.dirname(__FILE__) + '/../lib/db2s3'
 if File.exists?(File.dirname(__FILE__) + '/s3_config.rb')
   require File.dirname(__FILE__) + '/s3_config.rb'
