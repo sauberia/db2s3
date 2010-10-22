@@ -108,7 +108,7 @@ class DB2S3
   end
   
   def dump_file_name_prefix
-    "dump-#{db_credentials[:database]}-"
+    "dump-#{db_credentials[:database]}"
   end
   
   def dump_file_name time
