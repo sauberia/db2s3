@@ -3,7 +3,7 @@ begin
 rescue LoadError
   require 'activesupport' # The old one
 end
-require 'aws/s3'
+require 's3'
 require 'tempfile'
 
 class DB2S3
@@ -120,36 +120,34 @@ class DB2S3
 
     def ensure_connected
       return if @connected
-      AWS::S3::Base.establish_connection!(DB2S3::Config::S3.slice(:access_key_id, :secret_access_key).merge(:use_ssl => true))
-      AWS::S3::Bucket.create(bucket)
+      s3_service = S3::Service.new(DB2S3::Config::S3.slice(:access_key_id, :secret_access_key).merge(:use_ssl => true))
+      @bucket = s3_service.buckets.build(DB2S3::Config::S3[:bucket])
       @connected = true
     end
 
     def store(file_name, file)
       ensure_connected
-      AWS::S3::S3Object.store(file_name, file, bucket)
+      object = bucket.objects.build(file_name)
+      object.content = file.class == String ? file : (file.rewind; file.read)
+      object.save
     end
 
     def fetch(file_name)
       ensure_connected
-      AWS::S3::S3Object.find(file_name, bucket)
-
-      file = Tempfile.new("dump")
-      open(file.path, 'w') do |f|
-        AWS::S3::S3Object.stream(file_name, bucket) do |chunk|
-          f.write chunk
-        end
-      end
+      file = Tempfile.new('dump')
+      file.binmode if file.respond_to?(:binmode)
+      file.write(bucket.objects.find(file_name).content)
+      file.rewind
       file
     end
 
-    def list
+    def list(prefix)
       ensure_connected
-      AWS::S3::Bucket.find(bucket).objects.collect {|x| x.path }
+      bucket.objects.find_all(:prefix => prefix).collect {|x| x.key }
     end
 
     def delete(file_name)
-      if object = AWS::S3::S3Object.find(file_name, bucket)
+      if object = bucket.objects.find(file_name)
         object.delete
       end
     end
@@ -157,7 +155,7 @@ class DB2S3
     private
 
     def bucket
-      DB2S3::Config::S3[:bucket]
+      @bucket
     end
   end
 
