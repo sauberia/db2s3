@@ -10,7 +10,7 @@ namespace :db2s3 do
       DB2S3.new.restore
     end
 
-    desc "Keep all backups for the last day, one per day for the last week, and one per week before that. Delete the rest."
+    desc "Keep all backups for the last day, one per day for the last week, one per week for the last 28 days, and one per month before that. Delete the rest."
     task :clean => :environment do
       DB2S3.new.clean
     end
