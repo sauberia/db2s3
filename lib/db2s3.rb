@@ -78,9 +78,7 @@ class DB2S3
   private
 
   def dump_db
-    dump_file = Tempfile.new("dump")
-
-    #cmd = "mysqldump --quick --single-transaction --create-options -u#{db_credentials[:user]} --flush-logs --master-data=2 --delete-master-logs"
+    dump_file = Tempfile.new('dump')
     cmd = "mysqldump --quick --single-transaction --create-options #{mysql_options}"
     cmd += " | gzip > #{dump_file.path}"
     run(cmd)
