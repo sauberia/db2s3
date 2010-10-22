@@ -1,7 +1,7 @@
 begin
-  require 'activesupport' # The old one
-rescue LoadError
   require 'active_support' # The new one
+rescue LoadError
+  require 'activesupport' # The old one
 end
 require 'aws/s3'
 require 'tempfile'
