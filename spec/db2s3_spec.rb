@@ -2,11 +2,11 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 describe 'db2s3' do
   def load_schema
-    `cat '#{File.dirname(__FILE__) + '/mysql_schema.sql'}' | mysql -u #{DBConfig[:user]} #{DBConfig[:database]}`
+    `cat '#{File.dirname(__FILE__) + '/mysql_schema.sql'}' | mysql -u #{DBConfig[:username]} #{DBConfig[:database]}`
   end
 
   def drop_schema
-    `cat '#{File.dirname(__FILE__) + '/mysql_drop_schema.sql'}' | mysql -u #{DBConfig[:user]} #{DBConfig[:database]}`
+    `cat '#{File.dirname(__FILE__) + '/mysql_drop_schema.sql'}' | mysql -u #{DBConfig[:username]} #{DBConfig[:database]}`
   end
 
   class Person < ActiveRecord::Base

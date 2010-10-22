@@ -17,7 +17,7 @@ DBConfig = {
   :adapter  => "mysql",
   :encoding => "utf8",
   :database => 'db2s3_unittest',
-  :user     => "root"
+  :username => "root"
 }
 
 ActiveRecord::Base.configurations = { 'production' => DBConfig }
