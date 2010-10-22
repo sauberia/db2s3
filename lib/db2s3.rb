@@ -14,7 +14,7 @@ class DB2S3
   end
 
   def full_backup
-    file_name = "dump-#{db_credentials[:database]}-#{Time.now.utc.strftime("%Y%m%d%H%M")}.sql.gz"
+    file_name = dump_file_name(Time.now)
     store.store(file_name, open(dump_db.path))
     store.store(most_recent_dump_file_name, file_name)
   end
@@ -99,9 +99,17 @@ class DB2S3
   def store
     @store ||= S3Store.new
   end
+  
+  def dump_file_name_prefix
+    "dump-#{db_credentials[:database]}-"
+  end
+  
+  def dump_file_name time
+    "#{dump_file_name_prefix}-#{time.utc.strftime("%Y%m%d%H%M%S")}.sql.gz"
+  end
 
   def most_recent_dump_file_name
-    "most-recent-dump-#{db_credentials[:database]}.txt"
+    "most-recent-#{dump_file_name_prefix}.txt"
   end
 
   def run(command)
