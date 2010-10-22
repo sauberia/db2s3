@@ -4,8 +4,8 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{db2s3}
-  s.version = "0.3.2"
+  s.name = %q{sauberia-db2s3}
+  s.version = "0.3.2.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Xavier Shay"]
@@ -42,6 +42,7 @@ Gem::Specification.new do |s|
      "spec/s3_config.example.rb",
      "spec/spec_helper.rb"
   ]
+  s.add_dependency('s3', '>= 0.3.7')
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
