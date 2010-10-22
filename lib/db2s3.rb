@@ -27,33 +27,42 @@ class DB2S3
 
   # TODO: This method really needs specs
   def clean
-    to_keep = []
-    filelist = store.list
-    files = filelist.reject {|file| file.ends_with?(most_recent_dump_file_name) }.collect do |file|
-      {
-        :path => file,
-        :date => Time.parse(file.split('-').last.split('.').first)
+    files = file_objects_from_paths(store.list("#{dump_file_name_prefix}-"))
+    determine_what_to_keep files
+    delete_surplus_backups files
+  end
+  
+  def file_objects_from_paths paths
+    paths.collect do |path| {
+        :path => path,
+        :date => Time.parse(path.split('-').last.split('.').first),
+        :keep => false
       }
     end
+  end
+  
+  def determine_what_to_keep files
     # Keep all backups from the past day
-    files.select {|x| x[:date] >= 1.day.ago }.each do |backup_for_day|
-      to_keep << backup_for_day
+    files.select {|x| x[:date] >= 1.day.ago }.map! do |backup_for_day|
+      backup_for_day[:keep] = true
     end
-
     # Keep one backup per day from the last week
-    files.select {|x| x[:date] >= 1.week.ago }.group_by {|x| x[:date].strftime("%Y%m%d") }.values.each do |backups_for_last_week|
-      to_keep << backups_for_last_week.sort_by{|x| x[:date].strftime("%Y%m%d") }.first
+    files.select {|x| x[:date] >= 1.week.ago }.group_by {|x| x[:date].strftime("%u") }.values.map! do |backups_for_last_week|
+      backups_for_last_week.sort_by{|x| x[:path] }.first[:keep] = true
     end
-
-    # Keep one backup per week since forever
-    files.group_by {|x| x[:date].strftime("%Y%W") }.values.each do |backups_for_week|
-      to_keep << backups_for_week.sort_by{|x| x[:date].strftime("%Y%m%d") }.first
+    # Keep one backup per week from the last 28 days
+    files.select {|x| x[:date] >= 28.days.ago }.group_by {|x| x[:date].strftime("%Y%W") }.values.map! do |backups_for_last_28_days|
+      backups_for_last_28_days.sort_by{|x| x[:path] }.first[:keep] = true
     end
-
-    to_destroy = filelist - to_keep.uniq.collect {|x| x[:path] }
-    to_destroy.delete_if {|x| x.ends_with?(most_recent_dump_file_name) }
-    to_destroy.each do |file|
-      store.delete(file.split('/').last)
+    # Keep one backup per month since forever
+    files.group_by {|x| x[:date].strftime("%Y%m") }.values.map! do |backups_for_month|
+      backups_for_month.sort_by{|x| x[:path] }.first[:keep] = true
+    end
+  end
+  
+  def delete_surplus_backups files
+    files.each do |file|
+      store.delete(file[:path]) unless file[:keep]
     end
   end
 
