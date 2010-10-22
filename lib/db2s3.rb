@@ -90,7 +90,7 @@ class DB2S3
 
   def mysql_options
     cmd = ''
-    cmd += " -u #{db_credentials[:username]} " unless db_credentials[:username].nil?
+    cmd += " -u #{db_credentials[:user]} "     unless db_credentials[:user].nil?
     cmd += " -p'#{db_credentials[:password]}'" unless db_credentials[:password].nil?
     cmd += " -h '#{db_credentials[:host]}'"    unless db_credentials[:host].nil?
     cmd += " #{db_credentials[:database]}"
