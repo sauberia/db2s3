@@ -163,7 +163,8 @@ class DB2S3
 
     def delete(file_name)
       if object = bucket.objects.find(file_name)
-        object.delete
+        puts "Deleting file_name"
+        object.destroy
       end
     end
 
