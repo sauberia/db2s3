@@ -112,7 +112,7 @@ class DB2S3
   end
   
   def dump_file_name time
-    "#{dump_file_name_prefix}-#{time.utc.strftime("%Y%m%d%H%M%S")}.sql.gz"
+    "#{dump_file_name_prefix}-#{time.utc.strftime("%Y%m%d%H%M")}.sql.gz"
   end
 
   def most_recent_dump_file_name
